@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Boss Timer Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #eee;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #4db8ff;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #1c1c1c;
+      border-radius: 10px;
+      padding: 20px;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      border: none;
+      border-radius: 6px;
+    }
+    input {
+      background: #333;
+      color: #fff;
+    }
+    button {
+      background: #4db8ff;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #66cfff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      text-align: center;
+      padding: 8px;
+      border-bottom: 1px solid #333;
+    }
+    tr:nth-child(even) {
+      background: #222;
+    }
+  </style>
+</head>
+<body>
+  <h1>Boss Timer Tracker</h1>
+  <div class="container">
+    <input id="bossName" placeholder="Boss name" />
+    <input id="timerMins" type="number" placeholder="Spawn timer (minutes)" />
+    <button onclick="addTimer()">Add Timer</button>
+
+    <table id="timerTable">
+      <thead>
+        <tr><th>Boss</th><th>Remaining</th><th>Action</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script>
+    const socket = io();
+    let timers = [];
+
+    socket.on("init", data => {
+      timers = data;
+      render();
+    });
+
+    socket.on("updateAll", data => {
+      timers = data;
+      render();
+    });
+
+    function addTimer() {
+      const name = document.getElementById("bossName").value.trim();
+      const mins = parseInt(document.getElementById("timerMins").value);
+      if (!name || isNaN(mins)) return alert("Enter boss name and minutes");
+
+      const newTimer = {
+        name,
+        end: Date.now() + mins * 60000
+      };
+      timers.push(newTimer);
+      sync();
+    }
+
+    function deleteTimer(i) {
+      timers.splice(i, 1);
+      sync();
+    }
+
+    function sync() {
+      socket.emit("updateTimers", timers);
+    }
+
+    function render() {
+      const tbody = document.querySelector("#timerTable tbody");
+      tbody.innerHTML = "";
+      timers.forEach((t, i) => {
+        const remaining = Math.max(0, Math.floor((t.end - Date.now()) / 1000));
+        const mins = Math.floor(remaining / 60);
+        const secs = remaining % 60;
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${t.name}</td>
+          <td>${mins}m ${secs}s</td>
+          <td><button onclick="deleteTimer(${i})">Delete</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    setInterval(render, 1000);
+  </script>
+</body>
+</html>
