@@ -1,0 +1,13 @@
+{
+  "name": "boss-timer-tracker",
+  "version": "1.0.0",
+  "description": "Simple boss spawn tracker with timer and real-time updates",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
