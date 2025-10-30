@@ -186,7 +186,7 @@
     uploadBtn.addEventListener("click", async () => {
       const file = imageUpload.files[0];
       if (!file) { statusEl.textContent = "Choose an image first."; return; }
-      statusEl.textContent = "Uploading image for OCR...";
+      statusEl.textContent = "Uploading image...";
       const form = new FormData();
       form.append("image", file);
       try {
