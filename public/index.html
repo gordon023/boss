@@ -202,37 +202,43 @@
     function deleteTimer(id) {
       socket.emit("deleteTimer", id);
     }
+function renderAll() {
+  const now = Date.now();
+  const activeList = timers.filter(t => new Date(t.nextSpawn).getTime() > now);
 
-    function renderAll() {
-      const now = Date.now();
-      const activeList = timers.filter(t => new Date(t.nextSpawn).getTime() > now);
+  // 🟢 Sort timers by remaining time ascending
+  activeList.sort((a, b) => new Date(a.nextSpawn) - new Date(b.nextSpawn));
 
-      activeBody.innerHTML = "";
-      activeList.forEach(t => {
-        const next = new Date(t.nextSpawn).getTime();
-        const remainingSec = Math.max(0, Math.floor((next - Date.now())/1000));
-        const hrs = Math.floor(remainingSec / 3600);
-        const mins = Math.floor((remainingSec % 3600) / 60);
-        const secs = remainingSec % 60;
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td class="px-2 py-1">${escapeHtml(t.name)}</td>
-          <td class="px-2 py-1">${escapeHtml(t.location || "")}</td>
-          <td class="px-2 py-1">${new Date(t.acquired).toLocaleString()}</td>
-          <td class="px-2 py-1">${new Date(t.nextSpawn).toLocaleString()}</td>
-          <td class="px-2 py-1">${hrs}h ${mins}m ${secs}s</td>
-          <td class="px-2 py-1"><button class="px-2 py-1 bg-red-600 rounded text-black" onclick="deleteTimer('${t.id}')">Delete</button></td>
-        `;
-        activeBody.appendChild(tr);
-      });
-    }
+  activeBody.innerHTML = "";
+  activeList.forEach(t => {
+    const next = new Date(t.nextSpawn).getTime();
+    const remainingSec = Math.max(0, Math.floor((next - Date.now()) / 1000));
+    const hrs = Math.floor(remainingSec / 3600);
+    const mins = Math.floor((remainingSec % 3600) / 60);
+    const secs = remainingSec % 60;
 
-    function escapeHtml(s) {
-      if (!s) return "";
-      return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-    }
+    // 🟩 Highlight if time is 0 or less
+    const isZero = remainingSec <= 0;
+    const rowClass = isZero ? "bg-green-700 text-black font-semibold" : "";
 
-    setInterval(renderAll, 1000);
+    const tr = document.createElement("tr");
+    tr.className = rowClass;
+    tr.innerHTML = `
+      <td class="px-2 py-1">${escapeHtml(t.name)}</td>
+      <td class="px-2 py-1">${escapeHtml(t.location || "")}</td>
+      <td class="px-2 py-1">${new Date(t.acquired).toLocaleString()}</td>
+      <td class="px-2 py-1">${new Date(t.nextSpawn).toLocaleString()}</td>
+      <td class="px-2 py-1">${hrs}h ${mins}m ${secs}s</td>
+      <td class="px-2 py-1">
+        <button class="px-2 py-1 bg-red-600 rounded text-black" onclick="deleteTimer('${t.id}')">
+          Delete
+        </button>
+      </td>
+    `;
+    activeBody.appendChild(tr);
+  });
+}
+
   </script>
 </body>
 </html>
