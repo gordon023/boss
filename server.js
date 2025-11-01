@@ -1,105 +1,86 @@
 import express from "express";
-import http from "http";
-import { Server } from "socket.io";
-import fs from "fs";
+import pg from "pg";
+import dotenv from "dotenv";
+import fetch from "node-fetch";
 import path from "path";
-import multer from "multer";
-import Tesseract from "tesseract.js";
 import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const DATA_FILE = path.join(__dirname, "timers.json");
-const UPLOAD_DIR = path.join(__dirname, "uploads");
-
-// ensure upload dir exists
-if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-
-const upload = multer({ dest: UPLOAD_DIR });
-
-function loadTimers() {
-  try {
-    const raw = fs.readFileSync(DATA_FILE, "utf8");
-    return JSON.parse(raw);
-  } catch (e) {
-    return [];
-  }
-}
-function saveTimers(timers) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(timers, null, 2));
-}
-
-let timers = loadTimers();
+dotenv.config();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
-
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static("public"));
 
-// REST endpoint (optional): fetch timers
-app.get("/api/timers", (req, res) => {
-  res.json(timers);
+const { Pool } = pg;
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
 });
 
-// OCR upload endpoint
-app.post("/api/ocr", upload.single("image"), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" });
-  }
-  const imagePath = req.file.path;
+const DISCORD_WEBHOOK = process.env.DISCORD_WEBHOOK;
+
+// Send Discord message
+async function sendToDiscord(msg) {
   try {
-    const result = await Tesseract.recognize(imagePath, "eng", { logger: m => {} });
-    const text = (result.data && result.data.text) ? result.data.text : "";
-    // cleanup
-    try { fs.unlinkSync(imagePath); } catch(e){ /* ignore */ }
-    return res.json({ text });
+    await fetch(DISCORD_WEBHOOK, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: msg })
+    });
   } catch (err) {
-    console.error("OCR error:", err);
-    try { fs.unlinkSync(imagePath); } catch(e){ /* ignore */ }
-    return res.status(500).json({ error: "OCR failed" });
+    console.error("Discord Error:", err);
   }
+}
+
+// Fetch all timers
+app.get("/api/timers", async (req, res) => {
+  const result = await pool.query("SELECT * FROM boss_timers ORDER BY next_spawn ASC");
+  res.json(result.rows);
 });
 
-// Socket.io realtime
-io.on("connection", (socket) => {
-  // on connect, send current timers
-  socket.emit("init", timers);
-
-  // client wants to add a timer (already computed nextSpawn on client)
-  socket.on("addTimer", (timer) => {
-    // Normalize & ensure id
-    timer.id = timer.id || `${Date.now()}-${Math.floor(Math.random()*10000)}`;
-    timers.push(timer);
-    saveTimers(timers);
-    io.emit("update", timers);
-  });
-
-  // client requests delete by id
-  socket.on("deleteTimer", (id) => {
-    timers = timers.filter(t => t.id !== id);
-    saveTimers(timers);
-    io.emit("update", timers);
-  });
-
-  // client sends entire timers array (overwrite)
-  socket.on("replaceAll", (newTimers) => {
-    timers = newTimers || [];
-    saveTimers(timers);
-    io.emit("update", timers);
-  });
-
-  // optional: edit timer
-  socket.on("editTimer", (updated) => {
-    timers = timers.map(t => t.id === updated.id ? updated : t);
-    saveTimers(timers);
-    io.emit("update", timers);
-  });
-
-  socket.on("disconnect", () => {});
+// Add a timer
+app.post("/api/timers", async (req, res) => {
+  const { name, location, acquired, nextSpawn } = req.body;
+  await pool.query(
+    "INSERT INTO boss_timers (name, location, acquired, next_spawn) VALUES ($1,$2,$3,$4)",
+    [name, location, acquired, nextSpawn]
+  );
+  res.sendStatus(200);
 });
+
+// Delete timer
+app.delete("/api/timers/:id", async (req, res) => {
+  await pool.query("DELETE FROM boss_timers WHERE id=$1", [req.params.id]);
+  res.sendStatus(200);
+});
+
+// Clear all
+app.delete("/api/clear", async (req, res) => {
+  await pool.query("DELETE FROM boss_timers");
+  res.sendStatus(200);
+});
+
+// Auto Discord notifications every minute
+setInterval(async () => {
+  const now = new Date();
+  const result = await pool.query("SELECT * FROM boss_timers");
+  for (const t of result.rows) {
+    const remain = new Date(t.next_spawn) - now;
+
+    // 10-minute warning
+    if (remain <= 10 * 60 * 1000 && !t.warned10) {
+      await sendToDiscord(`${t.name} spawns in 10 minutes at ${t.location}`);
+      await pool.query("UPDATE boss_timers SET warned10 = true WHERE id=$1", [t.id]);
+    }
+
+    // Spawned
+    if (remain <= 0 && !t.announced) {
+      await sendToDiscord(`${t.name} has spawned at ${t.location}`);
+      await pool.query("UPDATE boss_timers SET announced = true WHERE id=$1", [t.id]);
+    }
+  }
+}, 60000);
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`✅ Server running on ${PORT}`));
