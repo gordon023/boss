@@ -1,247 +1,406 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Boss Timer - Real-time</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boss Timer Tracker</title>
   <style>
-    body { background: #0f1724; color: #e6eef8; }
-    .card { background: #0b1220; border: 1px solid #132034; }
-    .muted { color: #97a6bf; font-size: 0.95rem; }
-    .small { font-size: 0.85rem; color: #9fb0d4; }
+    :root {
+      --bg: #121417;
+      --card: #1c1f23;
+      --border: #2e343b;
+      --accent: #4a90e2;
+      --text: #e4e9ee;
+      --danger: #c94c4c;
+      --success: #63d471;
+      --warn: #ffde59;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", Arial, sans-serif;
+      margin: 0;
+      padding: 30px;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 30px;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
+    }
+
+    h1 {
+      color: var(--accent);
+      margin-bottom: 10px;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .tab-table {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .tab-btn {
+      background: #23272c;
+      border: 1px solid var(--border);
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 6px;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 14px;
+      transition: background 0.25s, color 0.25s;
+      width: 140px;
+      text-align: left;
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* Main content */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 950px;
+    }
+
+    .container {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      display: none;
+      flex-direction: column;
+      gap: 15px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.35);
+    }
+
+    .container.active {
+      display: flex;
+    }
+
+    .line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      background: #1b1e22;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    select, input, button {
+      background: #252a31;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    select:focus, input:focus, button:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    button {
+      background: var(--accent);
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      color: #fff;
+      transition: opacity 0.2s;
+    }
+
+    .danger {
+      background: var(--danger);
+    }
+
+    button:hover {
+      opacity: 0.85;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background: #23272c;
+      color: var(--accent);
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    tr.expired {
+      background: rgba(99, 212, 113, 0.1);
+      color: var(--success);
+      font-weight: bold;
+    }
+
+    tr.warning {
+      background: rgba(255, 222, 89, 0.1);
+      color: var(--warn);
+      font-weight: bold;
+    }
+
+    .discord-section {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+
+   footer {
+   
+      bottom: 0;
+      left: 0;
+      width: 100%;
+    
+      color: #aaa;
+      text-align: right;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+    }
   </style>
 </head>
-<body class="min-h-screen flex items-start justify-center p-6">
-  <div class="w-full max-w-6xl">
-    <header class="mb-6">
-      <h1 class="text-2xl font-semibold">FIXING HEHE SORRY</h1>
-      <p class="muted">Real-time bitch.</p>
-    </header>
+<body>
+  <div class="sidebar">
+    <h1>Boss kaba</h1>
+    <div class="tab-table">
+      <button id="tabField" class="tab-btn active">Field Boss</button>
+      <button id="tabUnique" class="tab-btn">Unique Boss</button>
+    </div>
+  </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Left: Upload + Manual -->
-      <div class="card p-5 rounded-lg">
-        <h2 class="font-medium mb-3">Upload screenshot</h2>
-        <input id="imageUpload" type="file" accept="image/*" class="mb-3 w-full bg-gray-900 p-2 rounded" />
-        <div class="flex gap-2 mb-3">
-          <button id="uploadBtn" class="px-3 py-2 bg-blue-500 rounded text-black font-medium">Upload & Detect</button>
-          <button id="clearOcrBtn" class="px-3 py-2 bg-gray-700 rounded">Clear</button>
-        </div>
-        <p id="status" class="small mb-4"></p>
-
-        <h2 class="font-medium mb-2">Manual Add</h2>
-        <div class="mb-2">
-          <label class="small mb-1 block">Boss</label>
-          <select id="manualBoss" class="w-full p-2 rounded bg-gray-900"></select>
-        </div>
-        <div class="mb-2">
-          <label class="small mb-1 block">Acquired time</label>
-          <input id="manualAcquired" type="datetime-local" class="w-full p-2 rounded bg-gray-900" />
-        </div>
-        <div class="mb-2">
-          <button id="manualAdd" class="w-full py-2 bg-green-500 text-black font-medium rounded">Add Boss</button>
-        </div>
-        <p id="manualStatus" class="small"></p>
+  <div class="main">
+    <div class="container active" id="fieldContainer">
+      <div class="line">
+        <label>Boss Timer:</label>
+        <select id="bossSelect"></select>
+        <label>Time Death:</label>
+        <input type="datetime-local" id="acquiredInput" />
+        <button id="addBtn">Add Boss</button>
+        <button id="clearAllBtn" class="danger">Clear Field</button>
       </div>
 
-      <!-- Right: Active table only -->
-      <div class="card p-5 rounded-lg">
-        <h2 class="font-medium mb-3">Active Timers</h2>
-        <div class="overflow-auto max-h-96">
-          <table class="w-full text-left">
-            <thead class="text-sm text-gray-300">
-              <tr>
-                <th class="px-2 py-1">Boss</th>
-                <th class="px-2 py-1">Location</th>
-                <th class="px-2 py-1">Acquired</th>
-                <th class="px-2 py-1">Next Spawn</th>
-                <th class="px-2 py-1">Remaining</th>
-                <th class="px-2 py-1">Action</th>
-              </tr>
-            </thead>
-            <tbody id="activeBody" class="text-sm"></tbody>
-          </table>
-        </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Boss</th>
+            <th>Location</th>
+            <th>Time of Death</th>
+            <th>Next Spawn</th>
+            <th>Remaining</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="timerBody"></tbody>
+      </table>
+
+      <div class="discord-section">
+        <button id="fieldDiscordBtn">Update to Discord</button>
       </div>
     </div>
 
-    <footer class="mt-6 muted small">Build by punpun 2025.</footer>
+    <div class="container" id="uniqueContainer">
+      <div class="line">
+        <label>Boss Name:</label>
+        <input type="text" id="uniqueNameInput" placeholder="Enter Boss Name" />
+        <label>Countdown:</label>
+        <select id="uniqueTimeSelect">
+          <option value="30">30 mins</option>
+          <option value="25">25 mins</option>
+          <option value="20">20 mins</option>
+          <option value="15">15 mins</option>
+          <option value="10">10 mins</option>
+        </select>
+        <button id="uniqueAddBtn">Start Countdown</button>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Boss</th>
+            <th>Countdown</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="uniqueBody"></tbody>
+      </table>
+    </div>
+
+    <footer>Build by Punpun</footer>
   </div>
 
-  <script src="/socket.io/socket.io.js"></script>
+   <!-- === SCRIPT UNTOUCHED === -->
   <script>
-    const socket = io();
+    const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1433449406056763557/nifC_lCD78cMTOoMY6ryDBlain76udKiIEVOitIWT_n8XqygjGj_GWU0zDEf8v6GTxGu";
 
-    const bossReference = {
-      "Venatus": { time: 10, loc: "Corrupted Basin" },
-      "Viorent": { time: 10, loc: "Crescent Lake" },
-      "Ego": { time: 21, loc: "Ulan Canyon" },
-      "Livera": { time: 24, loc: "Protectors Ruins" },
-      "Araneo": { time: 24, loc: "Lower Tomb of Tyriosa 1F" },
-      "Undomiel": { time: 24, loc: "Secret Laboratory" },
-      "Lady Dalia": { time: 18, loc: "Twilight Hill" },
-      "General Aquleus": { time: 29, loc: "Lower Tomb of Tyriosa 2F" },
-      "Amentis": { time: 29, loc: "Land of Glory" },
-      "Baron Braudmore": { time: 32, loc: "Battlefield of Templar" },
-      "Wannitas": { time: 48, loc: "Plateau of Revolution" },
-      "Metus": { time: 48, loc: "Plateau of Revolution" },
-      "Duplican": { time: 48, loc: "Plateau of Revolution" },
-      "Shuliar": { time: 95, loc: "Ruins of the War" },
-      "Gareth": { time: 32, loc: "Deadmans Land District 1" },
-      "Titore": { time: 37, loc: "Deadmans Land District 2" },
-      "Larba": { time: 35, loc: "Ruins of the War" },
-      "Catena": { time: 35, loc: "Deadmans Land District 3" },
-      "Secreta": { time: 62, loc: "Silvergrass Field" },
-      "Ordo": { time: 62, loc: "Silvergrass Field" },
-      "Asta": { time: 62, loc: "Silvergrass Field" },
-      "Supore": { time: 62, loc: "Silvergrass Field" }
+    async function sendToDiscord(message) {
+      try {
+        await fetch(DISCORD_WEBHOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content: message })
+        });
+      } catch (err) {
+        console.error("Discord error:", err);
+      }
+    }
+
+    const fieldTab = document.getElementById("tabField");
+    const uniqueTab = document.getElementById("tabUnique");
+    const fieldContainer = document.getElementById("fieldContainer");
+    const uniqueContainer = document.getElementById("uniqueContainer");
+
+    fieldTab.onclick = () => {
+      fieldTab.classList.add("active");
+      uniqueTab.classList.remove("active");
+      fieldContainer.classList.add("active");
+      uniqueContainer.classList.remove("active");
+    };
+    uniqueTab.onclick = () => {
+      uniqueTab.classList.add("active");
+      fieldTab.classList.remove("active");
+      uniqueContainer.classList.add("active");
+      fieldContainer.classList.remove("active");
     };
 
-    const manualBoss = document.getElementById("manualBoss");
-    const manualAcquired = document.getElementById("manualAcquired");
-    const manualAddBtn = document.getElementById("manualAdd");
-    const manualStatus = document.getElementById("manualStatus");
-    const imageUpload = document.getElementById("imageUpload");
-    const uploadBtn = document.getElementById("uploadBtn");
-    const clearOcrBtn = document.getElementById("clearOcrBtn");
-    const statusEl = document.getElementById("status");
-    const activeBody = document.getElementById("activeBody");
+    const bossList = [
+      { name: "Venatus", hours: 10, location: "Corrupted Basin" },
+      { name: "Viorent", hours: 10, location: "Crescent Lake" },
+      { name: "Ego", hours: 21, location: "Ulan Canyon" },
+      { name: "Livera", hours: 24, location: "Protectors Ruins" },
+      { name: "Araneo", hours: 24, location: "Lower Tomb of Tyriosa 1F" },
+      { name: "Undomiel", hours: 24, location: "Secret Laboratory" },
+      { name: "Lady Dalia", hours: 18, location: "Twilight Hill" },
+      { name: "General Aquleus", hours: 29, location: "Lower Tomb of Tyriosa 2F" },
+      { name: "Amentis", hours: 29, location: "Land of Glory" },
+      { name: "Baron Braudmore", hours: 32, location: "Battlefield of Templar" },
+      { name: "Wannitas", hours: 48, location: "Plateau of Revolution" },
+      { name: "Metus", hours: 48, location: "Plateau of Revolution" },
+      { name: "Duplican", hours: 48, location: "Plateau of Revolution" },
+      { name: "Shuliar", hours: 35, location: "Ruins of the War" },
+      { name: "Gareth", hours: 32, location: "Deadmans Land District 1" },
+      { name: "Titore", hours: 37, location: "Deadmans Land District 2" },
+      { name: "Larba", hours: 35, location: "Ruins of the War" },
+      { name: "Catena", hours: 35, location: "Deadmans Land District 3" },
+      { name: "Secreta", hours: 62, location: "Silvergrass Field" },
+      { name: "Ordo", hours: 62, location: "Silvergrass Field" },
+      { name: "Asta", hours: 62, location: "Silvergrass Field" },
+      { name: "Supore", hours: 62, location: "Silvergrass Field" }
+    ];
 
-    let timers = [];
 
-    function populateBossDropdown() {
-  const manualBoss = document.getElementById("manualBossDropdown");
-  manualBoss.innerHTML = '<option value="">Select Boss</option>';
+const bossSelect = document.getElementById("bossSelect");
+const acquiredInput = document.getElementById("acquiredInput");
+const addBtn = document.getElementById("addBtn");
+const clearAllBtn = document.getElementById("clearAllBtn");
+const timerBody = document.getElementById("timerBody");
+const fieldDiscordBtn = document.getElementById("fieldDiscordBtn");
 
-  Object.keys(bossReference).forEach(name => {
-    const o = document.createElement("option");
-    o.value = name;
-    o.textContent = name;
-    manualBoss.appendChild(o);
+bossList.forEach(b => {
+  const opt = document.createElement("option");
+  opt.value = b.name;
+  opt.textContent = `${b.name} (${b.hours}h)`;
+  bossSelect.appendChild(opt);
+});
+
+async function fetchTimers() {
+  const res = await fetch("/api/timers");
+  const timers = await res.json();
+  renderTimers(timers);
+}
+
+function renderTimers(timers) {
+  const now = Date.now();
+  timerBody.innerHTML = "";
+  timers.forEach(t => {
+    const next = new Date(t.next_spawn).getTime();
+    const remain = Math.max(0, next - now);
+    const hrs = Math.floor(remain / 3600000);
+    const mins = Math.floor((remain % 3600000) / 60000);
+    const expired = remain <= 0;
+    const tr = document.createElement("tr");
+    if (expired) tr.classList.add("expired");
+    tr.innerHTML = `
+      <td>${t.name}</td>
+      <td>${t.location}</td>
+      <td>${new Date(t.acquired).toLocaleString()}</td>
+      <td>${new Date(t.next_spawn).toLocaleString()}</td>
+      <td>${expired ? "Spawned!" : `${hrs}h ${mins}m`}</td>
+      <td><button class="danger" onclick="deleteTimer(${t.id})">Delete</button></td>
+    `;
+    timerBody.appendChild(tr);
   });
 }
 
-populateBossDropdown();
+async function addTimer() {
+  const boss = bossList.find(b => b.name === bossSelect.value);
+  if (!boss || !acquiredInput.value) return alert("Select a boss and time.");
+  const acquired = new Date(acquiredInput.value);
+  const nextSpawn = new Date(acquired.getTime() + boss.hours * 3600000);
+  await fetch("/api/timers", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ name: boss.name, location: boss.location, acquired, nextSpawn })
+  });
+  acquiredInput.value = "";
+  fetchTimers();
+}
 
+async function deleteTimer(id) {
+  await fetch(`/api/timers/${id}`, { method: "DELETE" });
+  fetchTimers();
+}
 
-    function makeTimerObj(name, acquiredDate) {
-      const ref = bossReference[name] || { time: 24, loc: "Unknown" };
-      const acquired = new Date(acquiredDate);
-      const nextSpawn = new Date(acquired.getTime() + ref.time * 60 * 60 * 1000);
-      return {
-        id: `${Date.now()}-${Math.floor(Math.random() * 10000)}`,
-        name,
-        location: ref.loc,
-        acquired: acquired.toISOString(),
-        nextSpawn: nextSpawn.toISOString()
-      };
-    }
+clearAllBtn.onclick = async () => {
+  if (confirm("Clear all timers?")) {
+    await fetch("/api/clear", { method: "DELETE" });
+    fetchTimers();
+  }
+};
 
-    socket.on("init", (data) => {
-      timers = data || [];
-      renderAll();
-    });
+addBtn.onclick = addTimer;
 
-    socket.on("update", (data) => {
-      timers = data || [];
-      renderAll();
-    });
-
-    manualAddBtn.addEventListener("click", () => {
-      const name = manualBoss.value;
-      const timeVal = manualAcquired.value;
-      if (!name || !timeVal) {
-        manualStatus.textContent = "Please select boss and acquired time.";
-        return;
-      }
-      const obj = makeTimerObj(name, timeVal);
-      socket.emit("addTimer", obj);
-      manualStatus.textContent = `Added ${name}.`;
-      manualBoss.value = "";
-      manualAcquired.value = "";
-    });
-
-    uploadBtn.addEventListener("click", async () => {
-      const file = imageUpload.files[0];
-      if (!file) { statusEl.textContent = "Choose an image first."; return; }
-      statusEl.textContent = "Uploading image...";
-      const form = new FormData();
-      form.append("image", file);
-      try {
-        const res = await fetch("/api/ocr", { method: "POST", body: form });
-        const json = await res.json();
-        if (json.error) { statusEl.textContent = "OCR failed."; return; }
-        const text = (json.text || "").trim();
-        if (!text) { statusEl.textContent = "No text detected."; return; }
-        statusEl.textContent = "OCR complete. Parsing...";
-        const lowered = text.toLowerCase();
-        const bossName = Object.keys(bossReference).find(b => lowered.includes(b.toLowerCase()));
-
-        let acquiredTime = new Date();
-        const match = text.match(/(\d{1,2}[:.]\d{2}\s?(AM|PM|am|pm)?)/);
-        if (match) {
-          let timeStr = match[1].replace('.', ':').trim();
-          const parsed = new Date(`${new Date().toDateString()} ${timeStr}`);
-          if (!isNaN(parsed)) acquiredTime = parsed;
-        }
-
-        if (!bossName) { statusEl.textContent = "No boss name detected."; return; }
-
-        const timerObj = makeTimerObj(bossName, acquiredTime.toISOString());
-        socket.emit("addTimer", timerObj);
-        statusEl.textContent = `Detected ${bossName}. Added timer.`;
-        imageUpload.value = "";
-      } catch (err) {
-        console.error(err);
-        statusEl.textContent = "OCR/upload failed.";
-      }
-    });
-
-    clearOcrBtn.addEventListener("click", () => {
-      imageUpload.value = "";
-      statusEl.textContent = "";
-    });
-
-    function deleteTimer(id) {
-      socket.emit("deleteTimer", id);
-    }
-
-    function renderAll() {
-      const now = Date.now();
-      const activeList = timers.filter(t => new Date(t.nextSpawn).getTime() > now);
-
-      activeBody.innerHTML = "";
-      activeList.forEach(t => {
-        const next = new Date(t.nextSpawn).getTime();
-        const remainingSec = Math.max(0, Math.floor((next - Date.now()) / 1000));
-        const hrs = Math.floor(remainingSec / 3600);
-        const mins = Math.floor((remainingSec % 3600) / 60);
-        const secs = remainingSec % 60;
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td class="px-2 py-1">${escapeHtml(t.name)}</td>
-          <td class="px-2 py-1">${escapeHtml(t.location || "")}</td>
-          <td class="px-2 py-1">${new Date(t.acquired).toLocaleString()}</td>
-          <td class="px-2 py-1">${new Date(t.nextSpawn).toLocaleString()}</td>
-          <td class="px-2 py-1">${hrs}h ${mins}m ${secs}s</td>
-          <td class="px-2 py-1">
-            <button class="px-2 py-1 bg-red-600 rounded text-black" onclick="deleteTimer('${t.id}')">
-              Delete
-            </button>
-          </td>
-        `;
-        activeBody.appendChild(tr);
-      });
-    }
-
-    function escapeHtml(s) {
-      if (!s) return "";
-      return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    }
-
-    setInterval(renderAll, 1000);
+setInterval(fetchTimers, 10000);
+fetchTimers();
   </script>
 </body>
 </html>
