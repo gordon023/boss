@@ -111,15 +111,19 @@
     let timers = [];
 
     function populateBossDropdown() {
-      manualBoss.innerHTML = "<option value=''>Select Boss</option>";
-      Object.keys(bossReference).forEach(name => {
-        const o = document.createElement("option");
-        o.value = name;
-        o.textContent = name;
-        manualBoss.appendChild(o);
-      });
-    }
-    populateBossDropdown();
+  const manualBoss = document.getElementById("manualBossDropdown");
+  manualBoss.innerHTML = '<option value="">Select Boss</option>';
+
+  Object.keys(bossReference).forEach(name => {
+    const o = document.createElement("option");
+    o.value = name;
+    o.textContent = name;
+    manualBoss.appendChild(o);
+  });
+}
+
+populateBossDropdown();
+
 
     function makeTimerObj(name, acquiredDate) {
       const ref = bossReference[name] || { time: 24, loc: "Unknown" };
