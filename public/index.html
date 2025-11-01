@@ -15,7 +15,6 @@
       --success: #63d471;
       --warn: #ffde59;
     }
-
     body {
       background-color: var(--bg);
       color: var(--text);
@@ -28,29 +27,23 @@
       gap: 30px;
       min-height: 100vh;
     }
-
-    /* Sidebar */
     .sidebar {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
       gap: 15px;
     }
-
     h1 {
       color: var(--accent);
       margin-bottom: 10px;
       font-size: 28px;
       font-weight: 700;
-      letter-spacing: 0.5px;
     }
-
     .tab-table {
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
-
     .tab-btn {
       background: #23272c;
       border: 1px solid var(--border);
@@ -60,17 +53,14 @@
       color: var(--text);
       font-weight: 600;
       font-size: 14px;
-      transition: background 0.25s, color 0.25s;
       width: 140px;
       text-align: left;
+      transition: background 0.25s;
     }
-
     .tab-btn.active {
       background: var(--accent);
       color: #fff;
     }
-
-    /* Main content */
     .main {
       flex: 1;
       display: flex;
@@ -78,7 +68,6 @@
       gap: 20px;
       max-width: 950px;
     }
-
     .container {
       background: var(--card);
       border: 1px solid var(--border);
@@ -87,13 +76,10 @@
       display: none;
       flex-direction: column;
       gap: 15px;
-      box-shadow: 0 0 8px rgba(0, 0, 0, 0.35);
     }
-
     .container.active {
       display: flex;
     }
-
     .line {
       display: flex;
       flex-wrap: wrap;
@@ -104,13 +90,11 @@
       border-radius: 8px;
       border: 1px solid var(--border);
     }
-
     label {
       font-size: 14px;
       font-weight: 600;
       color: var(--accent);
     }
-
     select, input, button {
       background: #252a31;
       color: var(--text);
@@ -118,31 +102,17 @@
       border-radius: 6px;
       padding: 8px 12px;
       font-size: 14px;
-      transition: all 0.2s ease;
     }
-
-    select:focus, input:focus, button:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-
     button {
       background: var(--accent);
-      border: none;
-      font-weight: 600;
-      cursor: pointer;
       color: #fff;
-      transition: opacity 0.2s;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: opacity 0.25s;
     }
-
-    .danger {
-      background: var(--danger);
-    }
-
-    button:hover {
-      opacity: 0.85;
-    }
-
+    button:hover { opacity: 0.85; }
+    .danger { background: var(--danger); }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -151,57 +121,38 @@
       overflow: hidden;
       font-size: 14px;
     }
-
-    th, td {
-      padding: 10px;
-      text-align: center;
-    }
-
+    th, td { padding: 10px; text-align: center; }
     th {
       background: #23272c;
       color: var(--accent);
       font-size: 15px;
       font-weight: 600;
     }
-
-    tr:nth-child(even) {
-      background: rgba(255, 255, 255, 0.025);
-    }
-
-    tr.expired {
-      background: rgba(99, 212, 113, 0.1);
-      color: var(--success);
-      font-weight: bold;
-    }
-
-    tr.warning {
-      background: rgba(255, 222, 89, 0.1);
-      color: var(--warn);
-      font-weight: bold;
-    }
-
+    tr:nth-child(even) { background: rgba(255,255,255,0.025); }
+    tr.expired { background: rgba(99,212,113,0.1); color: var(--success); font-weight: bold; }
+    tr.warning { background: rgba(255,222,89,0.1); color: var(--warn); font-weight: bold; }
     .discord-section {
       display: flex;
       justify-content: flex-end;
       margin-top: 10px;
     }
-
-   footer {
-   
+    footer {
+      position: fixed;
       bottom: 0;
-      left: 0;
+      right: 0;
       width: 100%;
-    
       color: #aaa;
+      background: #0e0f11;
       text-align: right;
       font-size: 13px;
-      letter-spacing: 0.5px;
+      padding: 8px 20px;
+      border-top: 1px solid #2e343b;
     }
   </style>
 </head>
 <body>
   <div class="sidebar">
-    <h1>Boss kaba</h1>
+    <h1>Boss Kaba</h1>
     <div class="tab-table">
       <button id="tabField" class="tab-btn active">Field Boss</button>
       <button id="tabUnique" class="tab-btn">Unique Boss</button>
@@ -209,6 +160,7 @@
   </div>
 
   <div class="main">
+    <!-- Field Boss -->
     <div class="container active" id="fieldContainer">
       <div class="line">
         <label>Boss Timer:</label>
@@ -234,10 +186,11 @@
       </table>
 
       <div class="discord-section">
-        <button id="fieldDiscordBtn">Update to Discord</button>
+        <button id="fieldDiscordBtn">Push Update to Discord</button>
       </div>
     </div>
 
+    <!-- Unique Boss -->
     <div class="container" id="uniqueContainer">
       <div class="line">
         <label>Boss Name:</label>
@@ -255,11 +208,7 @@
 
       <table>
         <thead>
-          <tr>
-            <th>Boss</th>
-            <th>Countdown</th>
-            <th>Action</th>
-          </tr>
+          <tr><th>Boss</th><th>Countdown</th><th>Action</th></tr>
         </thead>
         <tbody id="uniqueBody"></tbody>
       </table>
@@ -268,7 +217,6 @@
     <footer>Build by Punpun</footer>
   </div>
 
-   <!-- === SCRIPT UNTOUCHED === -->
   <script>
     const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1433449406056763557/nifC_lCD78cMTOoMY6ryDBlain76udKiIEVOitIWT_n8XqygjGj_GWU0zDEf8v6GTxGu";
 
@@ -277,30 +225,12 @@
         await fetch(DISCORD_WEBHOOK_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content: message })
+          body: JSON.stringify({ content: message }),
         });
       } catch (err) {
         console.error("Discord error:", err);
       }
     }
-
-    const fieldTab = document.getElementById("tabField");
-    const uniqueTab = document.getElementById("tabUnique");
-    const fieldContainer = document.getElementById("fieldContainer");
-    const uniqueContainer = document.getElementById("uniqueContainer");
-
-    fieldTab.onclick = () => {
-      fieldTab.classList.add("active");
-      uniqueTab.classList.remove("active");
-      fieldContainer.classList.add("active");
-      uniqueContainer.classList.remove("active");
-    };
-    uniqueTab.onclick = () => {
-      uniqueTab.classList.add("active");
-      fieldTab.classList.remove("active");
-      uniqueContainer.classList.add("active");
-      fieldContainer.classList.remove("active");
-    };
 
     const bossList = [
       { name: "Venatus", hours: 10, location: "Corrupted Basin" },
@@ -316,7 +246,7 @@
       { name: "Wannitas", hours: 48, location: "Plateau of Revolution" },
       { name: "Metus", hours: 48, location: "Plateau of Revolution" },
       { name: "Duplican", hours: 48, location: "Plateau of Revolution" },
-      { name: "Shuliar", hours: 35, location: "Ruins of the War" },
+      { name: "Shuliar", hours: 95, location: "Ruins of the War" },
       { name: "Gareth", hours: 32, location: "Deadmans Land District 1" },
       { name: "Titore", hours: 37, location: "Deadmans Land District 2" },
       { name: "Larba", hours: 35, location: "Ruins of the War" },
@@ -324,83 +254,174 @@
       { name: "Secreta", hours: 62, location: "Silvergrass Field" },
       { name: "Ordo", hours: 62, location: "Silvergrass Field" },
       { name: "Asta", hours: 62, location: "Silvergrass Field" },
-      { name: "Supore", hours: 62, location: "Silvergrass Field" }
+      { name: "Supore", hours: 62, location: "Silvergrass Field" },
     ];
 
+    const bossSelect = document.getElementById("bossSelect");
+    bossList.forEach(b => {
+      const opt = document.createElement("option");
+      opt.value = b.name;
+      opt.textContent = `${b.name} (${b.hours}h)`;
+      bossSelect.appendChild(opt);
+    });
 
-const bossSelect = document.getElementById("bossSelect");
-const acquiredInput = document.getElementById("acquiredInput");
-const addBtn = document.getElementById("addBtn");
-const clearAllBtn = document.getElementById("clearAllBtn");
-const timerBody = document.getElementById("timerBody");
-const fieldDiscordBtn = document.getElementById("fieldDiscordBtn");
+    const tabField = document.getElementById("tabField");
+    const tabUnique = document.getElementById("tabUnique");
+    const fieldContainer = document.getElementById("fieldContainer");
+    const uniqueContainer = document.getElementById("uniqueContainer");
 
-bossList.forEach(b => {
-  const opt = document.createElement("option");
-  opt.value = b.name;
-  opt.textContent = `${b.name} (${b.hours}h)`;
-  bossSelect.appendChild(opt);
-});
+    tabField.onclick = () => {
+      tabField.classList.add("active");
+      tabUnique.classList.remove("active");
+      fieldContainer.classList.add("active");
+      uniqueContainer.classList.remove("active");
+    };
+    tabUnique.onclick = () => {
+      tabUnique.classList.add("active");
+      tabField.classList.remove("active");
+      uniqueContainer.classList.add("active");
+      fieldContainer.classList.remove("active");
+    };
 
-async function fetchTimers() {
-  const res = await fetch("/api/timers");
-  const timers = await res.json();
-  renderTimers(timers);
-}
+    let timers = JSON.parse(localStorage.getItem("bossTimers") || "[]");
+    const timerBody = document.getElementById("timerBody");
+    const acquiredInput = document.getElementById("acquiredInput");
+    const addBtn = document.getElementById("addBtn");
+    const clearAllBtn = document.getElementById("clearAllBtn");
+    const fieldDiscordBtn = document.getElementById("fieldDiscordBtn");
 
-function renderTimers(timers) {
-  const now = Date.now();
-  timerBody.innerHTML = "";
-  timers.forEach(t => {
-    const next = new Date(t.next_spawn).getTime();
-    const remain = Math.max(0, next - now);
-    const hrs = Math.floor(remain / 3600000);
-    const mins = Math.floor((remain % 3600000) / 60000);
-    const expired = remain <= 0;
-    const tr = document.createElement("tr");
-    if (expired) tr.classList.add("expired");
-    tr.innerHTML = `
-      <td>${t.name}</td>
-      <td>${t.location}</td>
-      <td>${new Date(t.acquired).toLocaleString()}</td>
-      <td>${new Date(t.next_spawn).toLocaleString()}</td>
-      <td>${expired ? "Spawned!" : `${hrs}h ${mins}m`}</td>
-      <td><button class="danger" onclick="deleteTimer(${t.id})">Delete</button></td>
-    `;
-    timerBody.appendChild(tr);
-  });
-}
+    function saveTimers() {
+      localStorage.setItem("bossTimers", JSON.stringify(timers));
+    }
 
-async function addTimer() {
-  const boss = bossList.find(b => b.name === bossSelect.value);
-  if (!boss || !acquiredInput.value) return alert("Select a boss and time.");
-  const acquired = new Date(acquiredInput.value);
-  const nextSpawn = new Date(acquired.getTime() + boss.hours * 3600000);
-  await fetch("/api/timers", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ name: boss.name, location: boss.location, acquired, nextSpawn })
-  });
-  acquiredInput.value = "";
-  fetchTimers();
-}
+    function renderTimers() {
+      const now = Date.now();
+      timerBody.innerHTML = "";
+      timers.sort((a, b) => new Date(a.nextSpawn) - new Date(b.nextSpawn));
+      timers.forEach(async t => {
+        const next = new Date(t.nextSpawn).getTime();
+        const remain = Math.max(0, next - now);
+        const mins = Math.floor(remain / 60000);
+        const expired = remain <= 0;
 
-async function deleteTimer(id) {
-  await fetch(`/api/timers/${id}`, { method: "DELETE" });
-  fetchTimers();
-}
+        if (mins === 10 && !t.warned10) {
+          await sendToDiscord(`${t.name} spawns in 10 mins at ${t.location}`);
+          t.warned10 = true;
+          saveTimers();
+        }
+        if (expired && !t.announced) {
+          await sendToDiscord(`${t.name} has spawned at ${t.location}`);
+          t.announced = true;
+          saveTimers();
+        }
 
-clearAllBtn.onclick = async () => {
-  if (confirm("Clear all timers?")) {
-    await fetch("/api/clear", { method: "DELETE" });
-    fetchTimers();
-  }
-};
+        const hrs = Math.floor(remain / 3600000);
+        const tr = document.createElement("tr");
+        if (expired) tr.classList.add("expired");
+        tr.innerHTML = `
+          <td>${t.name}</td>
+          <td>${t.location}</td>
+          <td>${new Date(t.acquired).toLocaleString()}</td>
+          <td>${new Date(t.nextSpawn).toLocaleString()}</td>
+          <td>${expired ? "Spawned!" : `${hrs}h ${mins % 60}m`}</td>
+          <td><button class="danger" data-id="${t.id}">Delete</button></td>`;
+        tr.querySelector(".danger").onclick = () => {
+          timers = timers.filter(x => x.id !== t.id);
+          saveTimers();
+          renderTimers();
+        };
+        timerBody.appendChild(tr);
+      });
+    }
 
-addBtn.onclick = addTimer;
+    addBtn.onclick = () => {
+      const bossName = bossSelect.value;
+      const acquiredVal = acquiredInput.value;
+      if (!bossName || !acquiredVal) return alert("Please select a boss and time.");
+      const boss = bossList.find(b => b.name === bossName);
+      const acquired = new Date(acquiredVal);
+      const nextSpawn = new Date(acquired.getTime() + boss.hours * 3600000);
+      timers.push({ id: Date.now(), name: boss.name, location: boss.location, acquired, nextSpawn, warned10: false, announced: false });
+      saveTimers();
+      renderTimers();
+      acquiredInput.value = "";
+    };
 
-setInterval(fetchTimers, 10000);
-fetchTimers();
+    clearAllBtn.onclick = () => {
+      if (confirm("Clear all timers?")) {
+        timers = [];
+        saveTimers();
+        renderTimers();
+      }
+    };
+
+    fieldDiscordBtn.onclick = async () => {
+      if (timers.length === 0) return alert("No active timers!");
+      const grouped = {};
+      timers.forEach(t => {
+        const d = new Date(t.nextSpawn);
+        const dateStr = `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
+        const timeStr = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        if (!grouped[dateStr]) grouped[dateStr] = [];
+        grouped[dateStr].push(`${timeStr} - ${t.name} - ${t.location}`);
+      });
+      let msg = "**Field Boss Schedule**\n";
+      for (const [date, entries] of Object.entries(grouped)) {
+        msg += `\n${date}\n${entries.join("\n")}\n`;
+      }
+      await sendToDiscord(msg.trim());
+      alert("Field Boss schedule sent to Discord!");
+    };
+
+    // Unique Boss
+    let uniqueTimers = JSON.parse(localStorage.getItem("uniqueTimers") || "[]");
+    const uniqueBody = document.getElementById("uniqueBody");
+    const uniqueNameInput = document.getElementById("uniqueNameInput");
+    const uniqueTimeSelect = document.getElementById("uniqueTimeSelect");
+    const uniqueAddBtn = document.getElementById("uniqueAddBtn");
+
+    function saveUnique() {
+      localStorage.setItem("uniqueTimers", JSON.stringify(uniqueTimers));
+    }
+
+    function renderUniqueTimers() {
+      const now = Date.now();
+      uniqueBody.innerHTML = "";
+      uniqueTimers = uniqueTimers.filter(u => u.endTime > now);
+      uniqueTimers.forEach(u => {
+        const remain = Math.max(0, u.endTime - now);
+        const mins = Math.floor(remain / 60000);
+        const secs = Math.floor((remain % 60000) / 1000);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${u.name}</td>
+          <td>${remain <= 0 ? "Spawned!" : `${mins}m ${secs}s`}</td>
+          <td><button class="danger" data-id="${u.id}">Delete</button></td>`;
+        tr.querySelector(".danger").onclick = () => {
+          uniqueTimers = uniqueTimers.filter(x => x.id !== u.id);
+          saveUnique();
+          renderUniqueTimers();
+        };
+        uniqueBody.appendChild(tr);
+      });
+      saveUnique();
+    }
+
+    uniqueAddBtn.onclick = () => {
+      const name = uniqueNameInput.value.trim();
+      const mins = parseInt(uniqueTimeSelect.value);
+      if (!name) return alert("Enter a boss name.");
+      const endTime = Date.now() + mins * 60000;
+      uniqueTimers.push({ id: Date.now(), name, endTime });
+      uniqueNameInput.value = "";
+      saveUnique();
+      renderUniqueTimers();
+    };
+
+    setInterval(() => {
+      renderTimers();
+      renderUniqueTimers();
+    }, 1000);
   </script>
 </body>
 </html>
