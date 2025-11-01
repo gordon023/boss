@@ -203,8 +203,10 @@
       socket.emit("deleteTimer", id);
     }
 function renderAll() {
-  const now = Date.now();
-  const activeList = timers.filter(t => new Date(t.nextSpawn).getTime() > now);
+const activeList = timers.filter(t => {
+  const next = new Date(t.nextSpawn).getTime();
+  return !isNaN(next) && next >= now - 1000;
+});
 
   // 🟢 Sort timers by remaining time ascending
   activeList.sort((a, b) => new Date(a.nextSpawn) - new Date(b.nextSpawn));
